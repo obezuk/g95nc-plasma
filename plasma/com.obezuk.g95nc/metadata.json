@@ -1,0 +1,17 @@
+{
+    "KPlugin": {
+        "Id": "com.obezuk.g95nc",
+        "Name": "G95NC Control",
+        "Description": "Control Odyssey Neo G9 layouts and inputs",
+        "Icon": "video-display",
+        "Version": "0.3.0",
+        "Authors": [
+            {
+                "Name": "Tim Obezuk"
+            }
+        ],
+        "Category": "Utilities"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}
