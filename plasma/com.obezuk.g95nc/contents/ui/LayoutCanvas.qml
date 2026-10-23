@@ -38,6 +38,7 @@ Item {
     }
     LayoutPreview {
         anchors.fill: parent; widths: canvas.widths; pip: canvas.pip
+        sources: canvas.backend.draft.inputs
         highlightedPane: canvas.dropPane >= 0 ? canvas.dropPane : canvas.backend.draft.inputs.indexOf(canvas.selectedSource)
     }
     Repeater {
@@ -72,7 +73,7 @@ Item {
                 spacing: 8
                 opacity: canvas.draggingSource === pane.modelData ? .4 : 1
                 Behavior on opacity { NumberAnimation { duration: 100 } }
-                ConnectorIcon { anchors.horizontalCenter: parent.horizontalCenter; source: pane.modelData; width: 32; height: 25; ink: colors.secondary; visible: !canvas.pip || pane.index === 0 }
+                ConnectorIcon { anchors.horizontalCenter: parent.horizontalCenter; source: pane.modelData; width: 32; height: 25; ink: colors.inputColor(pane.modelData); visible: !canvas.pip || pane.index === 0 }
                 Controls.Label { text: pane.modelData; font.pixelSize: canvas.pip && pane.index === 1 ? 11 : 14; font.weight: Font.Medium; color: colors.text }
             }
         }
@@ -163,7 +164,7 @@ Item {
         x: canvas.dragPoint.x + 12; y: canvas.dragPoint.y - 36
         width: dragLabel.implicitWidth + 24; height: 32
         radius: 9
-        color: colors.surface; border.color: colors.outline
+        color: colors.inputFill(canvas.draggingSource, false); border.color: colors.inputColor(canvas.draggingSource)
         opacity: .96
         Controls.Label { id: dragLabel; anchors.centerIn: parent; text: canvas.draggingSource; font.pixelSize: 12; font.weight: Font.Medium; color: colors.text }
     }

@@ -12,8 +12,18 @@ Controls.ToolButton {
     EditorColors { id: colors }
     background: Rectangle {
         radius: 10
-        color: button.selected ? colors.hover : button.hovered || button.assigned ? colors.surface : "transparent"
-        border.color: button.selected || button.activeFocus ? colors.secondary : colors.border
+        color: button.selected || button.hovered ? colors.inputFill(button.source, true) : button.assigned ? colors.inputFill(button.source, false) : "transparent"
+        border.color: button.selected || button.activeFocus ? colors.inputColor(button.source) : colors.border
+        Rectangle {
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottomMargin: 1
+            width: parent.width - 20
+            height: 2
+            radius: 1
+            color: colors.inputColor(button.source)
+            opacity: button.assigned || button.selected ? 1 : .55
+        }
         Behavior on color { ColorAnimation { duration: 120 } }
     }
     signal picked(string source)
@@ -28,7 +38,7 @@ Controls.ToolButton {
         Row {
             anchors.centerIn: parent
             spacing: 7
-            ConnectorIcon { source: button.source; width: 22; height: 18; anchors.verticalCenter: parent.verticalCenter; ink: button.assigned || button.selected ? colors.text : colors.muted }
+            ConnectorIcon { source: button.source; width: 22; height: 18; anchors.verticalCenter: parent.verticalCenter; ink: colors.inputColor(button.source) }
             Controls.Label { text: button.source; font.pixelSize: 12; font.weight: Font.Medium; color: button.assigned || button.selected ? colors.text : colors.secondary }
         }
     }

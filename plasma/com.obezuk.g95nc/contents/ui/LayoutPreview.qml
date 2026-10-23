@@ -4,6 +4,8 @@ Canvas {
     id: canvas
     EditorColors { id: colors }
     property var widths: [100]
+    property var sources: []
+    onSourcesChanged: requestPaint()
     property bool pip: false
     property bool miniature: height < 32
     property bool selected: false
@@ -38,6 +40,7 @@ Canvas {
         panes.forEach(function(percent, index) {
             const span = percent * w / 100;
             if (miniature) c.fillStyle = selected ? colors.secondary : colors.outline;
+            else if (sources[index]) c.fillStyle = colors.inputFill(sources[index], highlightedPane === index);
             else if (highlightedPane === index) c.fillStyle = colors.paneSelected;
             else {
                 const gradient = c.createLinearGradient(0, 0, 0, h);
@@ -50,7 +53,7 @@ Canvas {
             offset += span;
         });
         if (pip) {
-            c.fillStyle = highlightedPane === 1 ? colors.paneSelected : colors.surface;
+            c.fillStyle = sources[1] ? colors.inputFill(sources[1], highlightedPane === 1) : highlightedPane === 1 ? colors.paneSelected : colors.surface;
             c.fillRect(w * .7, h * .56, w * .25, h * .3);
             c.strokeStyle = colors.outline; c.lineWidth = 1;
             c.strokeRect(w * .7, h * .56, w * .25, h * .3);

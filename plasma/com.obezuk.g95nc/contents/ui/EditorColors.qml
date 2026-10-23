@@ -1,6 +1,16 @@
 import QtQuick
 import org.kde.kirigami as Kirigami
 QtObject {
+    function inputColor(source) {
+        const palette = dark
+            ? {DisplayPort: '#b6d8f4', HDMI1: '#ddf797', HDMI2: '#f8c39c', HDMI3: '#dac3f6'}
+            : {DisplayPort: '#3175a5', HDMI1: '#608039', HDMI2: '#9b622f', HDMI3: '#7956a0'};
+        return palette[source] || text;
+    }
+    function inputFill(source, emphasized) {
+        const accent = Qt.tint("transparent", inputColor(source));
+        return Qt.tint(surface, Qt.rgba(accent.r, accent.g, accent.b, emphasized ? .28 : dark ? .14 : .10));
+    }
     readonly property bool dark: Kirigami.Theme.backgroundColor.r * .2126 + Kirigami.Theme.backgroundColor.g * .7152 + Kirigami.Theme.backgroundColor.b * .0722 < .45
     readonly property color panel: dark ? '#242428' : '#fafafa'
     readonly property color surface: dark ? '#34343b' : '#ffffff'

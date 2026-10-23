@@ -8,6 +8,16 @@ Item {
     property string selectedSource: ""
     required property var backend
     signal configureRequested()
+    signal displayConfigurationRequested()
+    readonly property string monitorStatus: {
+        if (!backend.configured) return i18n("Not configured");
+        if (backend.pending) return i18n("Applying…");
+        if (!backend.available) return backend.loading ? i18n("Connecting…") : i18n("Unavailable");
+        const state = backend.reportedState;
+        if (!state) return "";
+        if (state.profile === 'single') return state.input === 'unknown' ? i18n("Full screen") : i18n("Full screen") + " · " + state.input;
+        return (state.profile === 'pip' ? i18n("PiP") : i18n("PBP") + " · " + state.ratio);
+    }
     implicitWidth: 600
     implicitHeight: content.implicitHeight + 40
     Layout.minimumWidth: 520
@@ -21,6 +31,32 @@ Item {
         x: 20; y: 20
         width: parent.width - 40
         spacing: 16
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 16
+            ColumnLayout {
+                Layout.fillWidth: true
+                spacing: 3
+                Controls.Label {
+                    text: i18n("Odyssey Neo G9")
+                    font.weight: Font.DemiBold
+                    color: colors.text
+                }
+                Controls.Label {
+                    text: "57″ · G95NC"
+                    color: colors.secondary
+                    font.pointSize: Kirigami.Theme.smallFont.pointSize
+                }
+            }
+            Controls.Label {
+                objectName: "monitorStatus"
+                Layout.fillWidth: true
+                text: editor.monitorStatus
+                color: colors.secondary
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                horizontalAlignment: Text.AlignRight
+            }
+        }
         ColumnLayout {
             visible: !backend.configured
             Layout.fillWidth: true
@@ -108,6 +144,29 @@ Item {
                     }
                 }
             }
+        }
+
+        Rectangle {
+            Layout.fillWidth: true
+            implicitHeight: 1
+            color: colors.border
+            opacity: 0.65
+        }
+        Controls.ToolButton {
+            objectName: "displayConfiguration"
+            text: i18n("Display Configuration…")
+            contentItem: Controls.Label {
+                text: parent.text
+                color: colors.secondary
+                font.pointSize: Kirigami.Theme.smallFont.pointSize
+                verticalAlignment: Text.AlignVCenter
+            }
+            background: Rectangle {
+                radius: 8
+                color: parent.hovered || parent.activeFocus ? colors.hover : "transparent"
+            }
+            Layout.alignment: Qt.AlignLeft
+            onClicked: editor.displayConfigurationRequested()
         }
 
         Controls.Label {

@@ -11,6 +11,7 @@ Item {
     property var inputs: []
     property var draft: ({profile: "single", inputs: ["DisplayPort"]})
     property var appliedLayout: null
+    property var reportedState: null
     property string error: ""
     property bool loading: false
     property bool pending: false
@@ -66,6 +67,7 @@ Item {
             return;
         }
         profiles = result.profiles; inputs = result.inputs; available = true;
+        reportedState = result.monitor;
         if (wasApplying) appliedLayout = submitted;
         const actual = Layout.measured(result.monitor, profiles, inputs);
         if (!ready || !dirty) {
@@ -82,7 +84,7 @@ Item {
     Component.onCompleted: if (active) refresh()
     onActiveChanged: if (active) refresh()
     onMonitorSerialChanged: {
-        ready = false; available = false; appliedLayout = null; error = '';
+        ready = false; available = false; appliedLayout = null; reportedState = null; error = '';
         if (active && !busy) refresh();
     }
 }

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <title>G95NC curved monitor with split-screen layout</title>
+  <style id="current-color-scheme" type="text/css">.ColorScheme-Text { color: #232629; }</style>
+  <g class="ColorScheme-Text" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M3 6 Q16 10 29 6 V22 Q16 18 3 22 Z"/>
+    <path d="M16 8 V20 M16 20 V26 M10 27 Q16 25 22 27"/>
+  </g>
+</svg>

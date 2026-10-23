@@ -34,12 +34,14 @@ def main():
         library = ctypes.CDLL('libQt6QuickTest.so.6')
         run = getattr(library, '_Z15quick_test_mainiPPcPKcS2_')
         run.argtypes = [ctypes.c_int, ctypes.POINTER(ctypes.c_char_p), ctypes.c_char_p, ctypes.c_char_p]
-        args = [b'g95nc-widget-test', b'-input', os.fsencode(tests)]
+        args = [b'g95nc-widget-test', b'-input', os.fsencode(tests)] + [os.fsencode(arg) for arg in sys.argv[1:]]
         argv = (ctypes.c_char_p * (len(args) + 1))(*args, None)
         result = run(len(args), argv, b'g95nc-widget', None)
         if (root / 'preview.png').exists():
             (ROOT / '.runtime').mkdir(exist_ok=True)
             shutil.copy2(root / 'preview.png', ROOT / '.runtime/plasma-widget.png')
+        if (root / 'preview-dark.png').exists():
+            shutil.copy2(root / 'preview-dark.png', ROOT / '.runtime/plasma-widget-dark.png')
         return result
 
 

@@ -1,24 +1,57 @@
 import QtQuick
 import QtTest
+import org.kde.kirigami as Kirigami
 import "../widget/contents/ui" as Widget
 TestCase {
     id: test
     name: "StandaloneWidget"
     visible: true
     when: windowShown
-    width: 640; height: 440
+    width: 640; height: 600
     Widget.Controller { id: control; monitorSerial: "TEST-MONITOR"; active: true }
     Widget.Editor { id: editor; width: 600; height: implicitHeight; backend: control }
+    Rectangle {
+        id: iconBackground
+        visible: false
+        width: 32; height: 32; z: 100
+        color: "#242428"
+        Kirigami.Theme.inherit: false
+        Kirigami.Theme.textColor: "#eeeeee"
+        Widget.MonitorIcon { id: panelIcon; anchors.fill: parent }
+    }
+    function test_icon_contrast() {
+        iconBackground.visible = true;
+        for (const size of [22, 32]) {
+            iconBackground.width = size; iconBackground.height = size;
+            iconBackground.color = '#242428';
+            iconBackground.Kirigami.Theme.textColor = '#eeeeee';
+            wait(150);
+            let capture = grabImage(iconBackground);
+            verify(capture.red(size / 2, Math.round(size * 12 / 32)) > 140, 'Icon must be bright on a dark panel');
+            iconBackground.color = '#fafafa';
+            iconBackground.Kirigami.Theme.textColor = '#232629';
+            wait(150);
+            capture = grabImage(iconBackground);
+            verify(capture.red(size / 2, Math.round(size * 12 / 32)) < 140, 'Icon must be dark on a light panel');
+        }
+        iconBackground.visible = false;
+    }
+    SignalSpy { id: displaySettingsSpy; target: editor; signalName: "displayConfigurationRequested" }
     function test_roundtrip() {
         tryCompare(control, "ready", true, 10000);
         compare(control.error, ""); compare(control.dirty, false);
+        compare(editor.monitorStatus, 'Full screen · DisplayPort');
+        mouseClick(findChild(editor, 'displayConfiguration'));
+        compare(displaySettingsSpy.count, 1);
         control.choose('50-50'); control.assign(0, 'HDMI1');
+        compare(editor.monitorStatus, 'Full screen · DisplayPort');
         verify(control.canApply); compare(control.draft.inputs[1], 'DisplayPort');
         control.apply();
         verify(control.pending); verify(!control.canApply);
         tryCompare(control, 'pending', false, 30000);
         compare(control.error, ''); compare(control.dirty, false);
         compare(control.draft.inputs[0], 'HDMI1');
+        compare(editor.monitorStatus, 'PBP · 50 / 50');
         const canvas = findChild(editor, 'layoutCanvas');
         verify(canvas !== null);
         function dragSource(source, x, y) {
@@ -85,6 +118,11 @@ TestCase {
         control.choose('33-33-33'); wait(100);
         verify(editor.height > 100);
         grabImage(editor).save(Qt.resolvedUrl('../preview.png').toString().replace(/^file:\/\//, ''));
+        editor.Kirigami.Theme.inherit = false;
+        editor.Kirigami.Theme.backgroundColor = '#242428';
+        editor.Kirigami.Theme.textColor = '#eeeeee';
+        wait(150);
+        grabImage(editor).save(Qt.resolvedUrl('../preview-dark.png').toString().replace(/^file:\/\//, ''));
         // Shell metacharacters must be passed literally to the helper.
         control.monitorSerial = "TEST' $(false); \"quoted\"";
         tryCompare(control, 'ready', true, 10000);
@@ -92,6 +130,8 @@ TestCase {
         control.monitorSerial = 'FAIL';
         tryVerify(() => control.error.length > 0, 10000);
         compare(control.error, 'Simulated monitor failure');
+        compare(editor.monitorStatus, 'Unavailable');
+        compare(control.reportedState, null);
         verify(!control.canApply);
         const component = Qt.createComponent('../widget/contents/ui/main.qml');
         compare(component.status, Component.Ready, component.errorString());

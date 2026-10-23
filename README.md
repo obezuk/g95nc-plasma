@@ -6,13 +6,15 @@ A standalone Plasma 6 widget for arranging inputs on the Samsung 57″ Odyssey N
 
 Drag sources onto the monitor canvas, move them between panes, and drag dividers to choose a supported layout. Adding or removing sources adjusts the layout automatically. The ribbon selects a layout directly; **Confirm** applies your changes.
 
+The compact header identifies the supported monitor and shows its current reported layout, independently of unconfirmed edits. **Display Configuration…** opens KDE’s display settings for resolution, refresh rate, and desktop arrangement. The model and screen size are fixed product information; live layout status comes from the monitor over DDC/CI.
+
 Supported layouts: full screen, 50/50, 25/75, 75/25, thirds, 50/25/25, 25/50/25, 25/25/50, and PiP. DisplayPort and HDMI 1–3 are available sources.
 
 ## Requirements
 
 - Samsung Odyssey Neo G9 **G95NC**, tested with model **LS57CG952NEXXY**.
 - Firmware **M-C9557GGPA-1009.2** is the minimum verified version. Earlier firmware is untested.
-- Linux with **KDE Plasma 6**, including the Plasma5Support QML module and its executable data engine.
+- Linux with **KDE Plasma 6**, including the Plasma5Support QML module and its executable data engine, plus KCMUtils and KDE Display Configuration (KScreen).
 - `ddcutil` at `/usr/bin/ddcutil`, Bash, coreutils, and `flock` (util-linux).
 - Permission to access the monitor's I²C device as your desktop user. `ddcutil detect` must work without `sudo`.
 
@@ -75,3 +77,13 @@ python3 tests/run_plasma_ui.py
 These tests substitute a simulated DDC transport and do not control a real monitor. The QML runner also generates `.runtime/plasma-widget.png`.
 
 Widget source lives in `plasma/com.obezuk.g95nc/`. The package ID is retained so installations from the original service project can be upgraded in place.
+
+## Automated builds and releases
+
+The [build workflow](.github/workflows/build.yml) runs the offline layout, protocol, packaging, and transport tests on pushes to `main`, pull requests, and `v*` tags. You can also start it manually from GitHub Actions. QML interaction tests remain a local check on a Plasma 6 desktop.
+
+Each successful build provides a **g95nc-control** artifact containing `g95nc-control.plasmoid` and `SHA256SUMS`, retained for 30 days. Download and extract the artifact from the workflow run to install the widget.
+
+To publish a release, update `KPlugin.Version` in `plasma/com.obezuk.g95nc/metadata.json`, commit it, and push a matching tag (for example, `v0.3.0` for version `0.3.0`). The workflow rejects mismatched versions and, after testing, creates a GitHub release with the package, checksum, and generated release notes. No extra repository secrets are needed; only the release job receives write permission.
+
+The original curved-monitor [icon](plasma/com.obezuk.g95nc/contents/images/g95nc.svg) is painted directly in the panel’s foreground colour, including in dark mode. Sources keep consistent colours across the canvas, buttons, and drag previews: DisplayPort blue, HDMI1 green, HDMI2 orange, and HDMI3 purple.
